@@ -1,4 +1,6 @@
-import React from 'react';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+
 import { useSelector, useDispatch } from 'react-redux';
 import { removeItem, updateQuantity } from './CartSlice';
 import './CartItem.css';
@@ -9,29 +11,56 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
- 
+    let total_cart_amount = 0;
+    cart.forEach(item => {
+      const itemCost = parseFloat(item.cost.replace('$', ''));
+      total_cart_amount += itemCost * item.quantity;
+    });
+    return total_cart_amount;
   };
 
   const handleContinueShopping = (e) => {
-   
+    if (e) e.preventDefault(); // Safeguard against undefined event
+    onContinueShopping(e); // Call the prop function with the event
   };
 
+  const handleCheckoutShopping = (e) => {
+    alert('Functionality to be added for future reference');
+  };
 
 
   const handleIncrement = (item) => {
+    const newQuantity = item.quantity + 1;
+    dispatch(updateQuantity({ name: item.name, quantity: newQuantity }));
+    console.log("Item quantity incremented by 1: ", newQuantity, item);
   };
 
   const handleDecrement = (item) => {
-   
+    if (item.quantity > 0) {
+      const newQuantity = item.quantity - 1;
+      if (newQuantity === 0) {
+        dispatch(removeItem({ name: item.name }));
+        console.log("Item removed because item quantity went below 1:", item);
+      } else {
+        dispatch(updateQuantity({ name: item.name, quantity: newQuantity }));
+        console.log("Item quantity decremented by 1: ", newQuantity, item);
+      }
+    } else {
+      dispatch(removeItem({ name: item.name }));
+      console.log("Item removed because item quantity was already 0:", item);
+    }
   };
 
   const handleRemove = (item) => {
+    dispatch(removeItem({ name: item.name }));
+    console.log("Item removed:", item);
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
+    const itemCost = parseFloat(item.cost.replace('$', ''));
+    return itemCost * item.quantity;
   };
-
   return (
     <div className="cart-container">
       <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
